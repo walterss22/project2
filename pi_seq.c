@@ -16,16 +16,22 @@ double find_pi(long terms ){
     //Some inline assembly here. This should work for all versions of GCC...
     //*** Author: Kefu Lu
     double Pi = 4;
-    for (int i = 0; i < terms)
+    double mult = 0;
+    for (int i = 0; i < terms; i++){
+        mult += pow(-1, i) * (1 / ((2 * i) +1));
+    }
 
+    Pi *= mult;
     return Pi; 
 }
 
 int main(int argc, char** argv){
     struct timespec start, end; //structs used for timing purposes, it has two memebers, a tv_sec which is the current second, and the tv_nsec which is the current nanosecond.
     double time_diff;
-    if argv.length > 1{
+    if(argv* >= 1){
         long terms = (long) argv[1];
+    } else {
+        long terms = 1000000;
     }
     
     clock_gettime(CLOCK_MONOTONIC, &start); //Start the clock!
