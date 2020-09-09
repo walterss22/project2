@@ -11,13 +11,12 @@ This program sequentially estimates pi.
 #include <time.h> //to use clock
 #include <math.h> //to use pow function
 
-#define DEFAULT 10
+#define DEFAULT 1000000
 
 double find_pi(long terms ){
     //C doesn't actually have Pi as a constant, but...
     //Most modern CPUs actually have an instruction to just load Pi into a register!
     //Some inline assembly here. This should work for all versions of GCC...
-    //*** Author: Kefu Lu
     long double Pi = 4;
     long double mult = 0;
     for (int i = 0; i < terms; i++){
