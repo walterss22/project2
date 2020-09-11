@@ -15,7 +15,7 @@ This program parallelizes the estimation of pi.
 #define DEFAULT 1000000
 #define THREADS 10
 
-double find_pi(long terms ){
+double find_pi(long terms, void * rank ){
     //C doesn't actually have Pi as a constant, but...
     //Most modern CPUs actually have an instruction to just load Pi into a register!
     //Some inline assembly here. This should work for all versions of GCC...
@@ -49,10 +49,10 @@ int main(int argc, char** argv){
         threads = THREADS;
     }
 
-    handlers = malloc(sizeof(pthread_t) * threads);
+    pthread_t * handlers = malloc(sizeof(pthread_t) * threads);
 
-    for( int i = 0; i < threads; i++){
-        handlers[i] = pthread_create();
+    for( unintptr_t i = 0; i < threads; i++){
+        pthread_create(handlers[i], NULL, find_pi, (void*) i );
     }
     
     //get time taken
