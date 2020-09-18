@@ -87,4 +87,5 @@ int main(int argc, char** argv){
     printf("The time taken is %f \n", time_diff);
     printf("%lld terms used.\n", TERMS);
     printf("Pi is %.20Lf\n", pi);
+    return 0;
 }

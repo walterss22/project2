@@ -21,3 +21,9 @@ of the Monte Carlo estimation of pi.
 
 int64_t SAMPLES = 1000000;
 
+double estimate(){
+
+}
+
+int main
+
