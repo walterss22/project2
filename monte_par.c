@@ -2,7 +2,7 @@
 Author: Scott Walters
 CSCI-320
 
-This program is a sequential implementation
+This program is a parallel implementation
 of the Monte Carlo estimation of pi.
 */
 
@@ -14,6 +14,7 @@ of the Monte Carlo estimation of pi.
 
 int64_t SAMPLES = 1000000;
 int DIGITS;
+int THREADS = 10;
 
 long double estimate(){
     int samps [SAMPLES][2];
@@ -39,6 +40,9 @@ int main(int argc, char** argv){
 
     if(argc >= 2){
         SAMPLES = strtoull(argv[1], NULL, 10);
+        if(argc > 2){
+            THREADS = strtoull(argv[2], NULL, 10);
+        }
     }
 
     clock_gettime(CLOCK_MONOTONIC, &start); //Start the clock!
@@ -53,4 +57,3 @@ int main(int argc, char** argv){
     printf("Pi is %.20Lf\n", estimation);
     return 0;
 }   
-
