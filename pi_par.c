@@ -12,52 +12,72 @@ This program parallelizes the estimation of pi.
 #include <math.h> //to use pow function
 #include <pthread.h> //to implement threading
 
-#define DEFAULT 1000000
-#define THREADS 10
+int64_t TERMS = 1000000;
+int THREADS = 10;
 
-double find_pi(long terms, void * rank ){
+long double* results;
+
+void* find_pi(void* number ){
     //C doesn't actually have Pi as a constant, but...
     //Most modern CPUs actually have an instruction to just load Pi into a register!
     //Some inline assembly here. This should work for all versions of GCC...
+    uintptr_t rank = (uintptr_t) number;
     long double Pi = 4; //initialize Pi
     long double mult = 0; //initialize multiplier
-    for (int i = 0; i < terms; i++){
+    int block = TERMS/THREADS; //get block size
+    uint64_t start = block * rank;
+    //printf("rank: %lu, start: %llu \n", rank, start);
+    uint64_t end = block * (rank + 1);
+    // if( block * (rank + 1) < rank * (THREADS - 1)){
+    //     end = block * (rank + 1);
+
+    // } else {
+    //     end = rank * (THREADS - 1);
+    // }
+    //printf("rank: %lu, end: %llu \n", rank, end);
+    for (int i = start; i < end; i++){
         mult += pow(-1, i) * (1.0 / ((2 * i) + 1)); //use estimation algo
     }
     // printf("multiplier is %Lf\n", mult); //used for checking multiplier
     Pi *= mult; //finish estimation
-    return Pi;  //return Pi
+    //printf("rank: %lu, pi: %Lf \n", rank, Pi);
+    results[rank] = Pi; //Save partial estimation to results
+    return NULL; //return NULL
 }
 
 int main(int argc, char** argv){
     struct timespec start, end; //structs used for timing purposes, it has two memebers, a tv_sec which is the current second, and the tv_nsec which is the current nanosecond.
     double time_diff;
-    long terms;
-    int threads;
+    long double pi = 0;
 
     //gather command line arg
     if(argc >= 2){
-        terms = strtoull(argv[1], NULL, 10);
+        TERMS = strtoull(argv[1], NULL, 10);
         if(argc > 2){
-            threads = strtoull(argv[2], NULL, 10);
+            THREADS = strtoull(argv[2], NULL, 10);
         }
-        else{
-            threads = THREADS;
-        }
-    } else {
-        terms = DEFAULT;
-        threads = THREADS;
-    }
-
-    pthread_t * handlers = malloc(sizeof(pthread_t) * threads);
-
-    for( unintptr_t i = 0; i < threads; i++){
-        pthread_create(handlers[i], NULL, find_pi, (void*) i );
     }
     
     //get time taken
     clock_gettime(CLOCK_MONOTONIC, &start); //Start the clock!
-    double pi = find_pi(terms);
+
+    pthread_t * handlers = malloc(sizeof(pthread_t) * THREADS); //create space in memory for threads
+    results = malloc(THREADS * sizeof(uint64_t));
+
+    for(int i = 0; i < THREADS; i++){
+        pthread_create(&handlers[i], NULL, find_pi, (void*) i ); //create threads
+    }
+
+    for(int i = 0; i < THREADS; i++){
+        pthread_join(handlers[i], NULL); //join threads
+    }
+    free(handlers);
+    //printf("%Lf \n", results[0]);
+    //printf("%Lf \n", pi);
+    for (int i = 0; i < THREADS; i++){
+        pi += results[i];
+    //    printf("%Lf \n", pi);
+    }
     clock_gettime(CLOCK_MONOTONIC, &end);   //Stops the clock!
 
     time_diff = (end.tv_sec - start.tv_sec); //Difference in seconds
@@ -65,6 +85,6 @@ int main(int argc, char** argv){
 
     //print results
     printf("The time taken is %f \n", time_diff);
-    printf("%ld terms used.\n", terms);
-    printf("Pi is %.20lf\n", pi);
+    printf("%lld terms used.\n", TERMS);
+    printf("Pi is %.20Lf\n", pi);
 }
