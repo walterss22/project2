@@ -72,11 +72,9 @@ int main(int argc, char** argv){
         pthread_join(handlers[i], NULL); //join threads
     }
     free(handlers);
-    //printf("%Lf \n", results[0]);
-    //printf("%Lf \n", pi);
     for (int i = 0; i < THREADS; i++){
         pi += results[i];
-    //    printf("%Lf \n", pi);
+        
     }
     clock_gettime(CLOCK_MONOTONIC, &end);   //Stops the clock!
 
