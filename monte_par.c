@@ -14,33 +14,31 @@ of the Monte Carlo estimation of pi.
 #include <pthread.h> //to thread
 
 int64_t SAMPLES = 1000000;
-int DIGITS;
 int THREADS = 10;
 double* results;
 
-long double estimate(){
+void* estimate(void* number){
     srand(time(NULL));
-    int samps [SAMPLES][2]; //could not save as matrix and use ifs in loops to save mem
-    //maybe get rid of segmentation err
-    int hits = 0;
+    uintptr_t rank = (uintptr_t) number;
+    double x = 0;
+    double y = 0;
+    uint64_t hits = 0;
     for(uint64_t i = 0; i < SAMPLES; i++){
-        for(uint64_t x = 0; x < 2; x++){
-            samps [i][x] = (rand()/(pow(10, DIGITS))); //Cannot set upper bound
-        }
-        if(sqrt(pow(samps[i][0],2) + pow(samps[i][1],2)) <= 1 ){
+        x = ((double)rand()/(double)RAND_MAX); //cast to doubles, divide by RAND_MAX 
+        y = ((double)rand()/(double)RAND_MAX);
+        if(sqrt(pow(x,2) + pow(y,2) <= 1 ){
             hits +=1;
         }
     }
-    printf("%d\n", hits);
-    return (((double)hits)/SAMPLES) * 4;
+    printf("%f\n", ((double)hits / (double)(SAMPLES*THREADS)));
+    results[rank] = ((double)hits/(double)(SAMPLES*THREADS));
+    return NULL;
 }
 
 int main(int argc, char** argv){
     struct timespec start, end; //structs used for timing purposes, it has two memebers, a tv_sec which is the current second, and the tv_nsec which is the current nanosecond.
     double time_diff;
     double est = 0;
-    DIGITS = floor(log10(RAND_MAX));
-    //Segmentation fault
 
     if(argc >= 2){
         SAMPLES = strtoull(argv[1], NULL, 10);
@@ -57,7 +55,7 @@ int main(int argc, char** argv){
 
     //create threads
     for(int i = 0; i < THREADS; i++){
-        pthread_create(&handlers[i], NULL, estimate, NULL);
+        pthread_create(&handlers[i], NULL, estimate, (void*) i);
     }
 
     //join threads
@@ -72,6 +70,9 @@ int main(int argc, char** argv){
     for(int i = 0; i < THREADS; i++){
         est += results[i];
     }
+    printf("collection of floats: %f", est);
+
+    est*= 4;
 
     clock_gettime(CLOCK_MONOTONIC, &end);   //Stops the clock!
     time_diff = (end.tv_sec - start.tv_sec); //Difference in seconds
