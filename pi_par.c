@@ -26,7 +26,6 @@ void* find_pi(void* number ){
     long double mult = 0; //initialize multiplier
     int block = TERMS/THREADS; //get block size
     uint64_t start = block * rank;
-    //printf("rank: %lu, start: %llu \n", rank, start);
     uint64_t end = block * (rank + 1);
     // if( block * (rank + 1) < rank * (THREADS - 1)){
     //     end = block * (rank + 1);
