@@ -26,7 +26,7 @@ void* estimate(void* number){
     for(uint64_t i = 0; i < SAMPLES; i++){
         x = ((double)rand()/(double)RAND_MAX); //cast to doubles, divide by RAND_MAX 
         y = ((double)rand()/(double)RAND_MAX);
-        if(sqrt(pow(x,2) + pow(y,2) <= 1 ){
+        if(sqrt(pow(x,2) + pow(y,2) <= 1 )){
             hits +=1;
         }
     }
